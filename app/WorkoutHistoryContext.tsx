@@ -1,6 +1,6 @@
 "use client"
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 type WorkoutData = {
   id: string;
@@ -25,12 +25,22 @@ const WorkoutHistoryContext = createContext<WorkoutHistoryContextType | undefine
 export const WorkoutHistoryProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [workoutHistory, setWorkoutHistory] = useState<WorkoutData[]>([]);
 
+  useEffect(() => {
+    // Load workout history from local storage on initial render
+    const storedHistory = localStorage.getItem('workoutHistory');
+    if (storedHistory) {
+      setWorkoutHistory(JSON.parse(storedHistory));
+    }
+  }, []);
+
   const addWorkout = (workout: Omit<WorkoutData, 'id'>) => {
     const newWorkout = {
       ...workout,
-      id: Date.now().toString(), // Simple ID generation
+      id: Date.now().toString(),
     };
-    setWorkoutHistory(prevHistory => [...prevHistory, newWorkout]);
+    const updatedHistory = [...workoutHistory, newWorkout];
+    setWorkoutHistory(updatedHistory);
+    localStorage.setItem('workoutHistory', JSON.stringify(updatedHistory));
   };
 
   const getWorkoutHistory = () => workoutHistory;
