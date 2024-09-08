@@ -18,6 +18,7 @@ type WorkoutHistoryContextType = {
   workoutHistory: WorkoutData[];
   addWorkout: (workout: Omit<WorkoutData, 'id'>) => void;
   getWorkoutHistory: () => WorkoutData[];
+  clearWorkoutHistory: () => void;
 };
 
 const WorkoutHistoryContext = createContext<WorkoutHistoryContextType | undefined>(undefined);
@@ -45,8 +46,13 @@ export const WorkoutHistoryProvider: React.FC<{ children: ReactNode }> = ({ chil
 
   const getWorkoutHistory = () => workoutHistory;
 
+  const clearWorkoutHistory = () => {
+    setWorkoutHistory([]);
+    localStorage.removeItem('workoutHistory');
+  };
+
   return (
-    <WorkoutHistoryContext.Provider value={{ workoutHistory, addWorkout, getWorkoutHistory }}>
+    <WorkoutHistoryContext.Provider value={{ workoutHistory, addWorkout, getWorkoutHistory, clearWorkoutHistory }}>
       {children}
     </WorkoutHistoryContext.Provider>
   );
