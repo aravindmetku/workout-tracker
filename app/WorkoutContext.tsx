@@ -11,7 +11,7 @@ type WorkoutContextType = {
   incrementWorkoutCount: () => void;
 };
 
-const WorkoutContext = createContext<WorkoutContextType | undefined>(undefined);
+const CurrentWorkoutContext = createContext<WorkoutContextType | undefined>(undefined);
 
 export const WorkoutProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [workoutStart, setWorkoutStart] = useState<Date | null>(null);
@@ -23,7 +23,7 @@ export const WorkoutProvider: React.FC<{ children: ReactNode }> = ({ children })
   const incrementWorkoutCount = () => setWorkoutCount(prev => prev + 1);
 
   return (
-    <WorkoutContext.Provider value={{ 
+    <CurrentWorkoutContext.Provider value={{ 
       workoutStart, 
       workoutEnd, 
       workoutCount, 
@@ -32,12 +32,12 @@ export const WorkoutProvider: React.FC<{ children: ReactNode }> = ({ children })
       incrementWorkoutCount 
     }}>
       {children}
-    </WorkoutContext.Provider>
+    </CurrentWorkoutContext.Provider>
   );
 };
 
 export const useWorkout = () => {
-  const context = useContext(WorkoutContext);
+  const context = useContext(CurrentWorkoutContext);
   if (context === undefined) {
     throw new Error('useWorkout must be used within a WorkoutProvider');
   }
