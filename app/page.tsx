@@ -1,12 +1,12 @@
 import WorkoutTracker from "./tracker";
-import { WorkoutProvider } from "./WorkoutContext";
+import { CurrentWorkoutProvider } from "./WorkoutContext";
 
 export default function Home() {
   return (
-    <WorkoutProvider>
+    <CurrentWorkoutProvider>
       <div className="min-h-screen">
         <WorkoutTracker />
       </div>
-    </WorkoutProvider>
+    </CurrentWorkoutProvider>
   );
 }

@@ -13,7 +13,7 @@ type WorkoutContextType = {
 
 const CurrentWorkoutContext = createContext<WorkoutContextType | undefined>(undefined);
 
-export const WorkoutProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const CurrentWorkoutProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [workoutStart, setWorkoutStart] = useState<Date | null>(null);
   const [workoutEnd, setWorkoutEnd] = useState<Date | null>(null);
   const [workoutCount, setWorkoutCount] = useState(0);
