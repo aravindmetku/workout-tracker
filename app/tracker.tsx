@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { SkipForward, ArrowLeft } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { useWorkout } from './WorkoutContext';
 
 type Exercise = {
   name: string
@@ -60,6 +61,12 @@ const workoutProgram: Record<string, Workout> = {
 }
 
 export default function WorkoutTracker() {
+  const { 
+    startWorkout: contextStartWorkout, 
+    endWorkout: contextEndWorkout, 
+    incrementWorkoutCount,
+    workoutCount 
+  } = useWorkout();
   const [selectedWorkout, setSelectedWorkout] = useState<string | null>(null)
   const [currentExercise, setCurrentExercise] = useState(0)
   const [currentSet, setCurrentSet] = useState(0)
@@ -90,11 +97,19 @@ export default function WorkoutTracker() {
   }, [isResting, timer])
 
   const startWorkout = (workoutName: string) => {
-    setSelectedWorkout(workoutName)
-    setCurrentExercise(0)
-    setCurrentSet(0)
-    setTimer(0)
-    setIsResting(false)
+    contextStartWorkout();
+    incrementWorkoutCount();
+    setSelectedWorkout(workoutName);
+    setCurrentExercise(0);
+    setCurrentSet(0);
+    setTimer(0);
+    setIsResting(false);
+
+    // Show toast with new workout count
+    toast({
+      title: "Workout Started",
+      description: `This is workout #${workoutCount + 1}. Let's go!`,
+    });
   }
 
   const startRest = (duration: number) => {
@@ -133,29 +148,33 @@ export default function WorkoutTracker() {
   }
 
   const finishWorkout = () => {
+    contextEndWorkout();
     toast({
       title: "Workout Complete!",
       description: `You've completed the ${selectedWorkout} workout. Great job!`,
-    })
-    setSelectedWorkout(null)
-    setCurrentExercise(0)
-    setCurrentSet(0)
-    setTimer(0)
-    setIsResting(false)
+    });
+    setSelectedWorkout(null);
+    setCurrentExercise(0);
+    setCurrentSet(0);
+    setTimer(0);
+    setIsResting(false);
   }
 
   const renderDashboard = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {Object.keys(workoutProgram).map((workoutName) => (
-        <Card key={workoutName} className="cursor-pointer hover:bg-secondary" onClick={() => startWorkout(workoutName)}>
-          <CardHeader>
-            <CardTitle>{workoutName}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>{workoutProgram[workoutName].exercises.length} exercises</p>
-          </CardContent>
-        </Card>
-      ))}
+    <div className="space-y-4">
+      <p className="text-lg font-semibold">Total Workouts Completed: {workoutCount}</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {Object.keys(workoutProgram).map((workoutName) => (
+          <Card key={workoutName} className="cursor-pointer hover:bg-secondary" onClick={() => startWorkout(workoutName)}>
+            <CardHeader>
+              <CardTitle>{workoutName}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p>{workoutProgram[workoutName].exercises.length} exercises</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   )
 
