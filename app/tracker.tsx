@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress"
 import { SkipForward, ArrowLeft } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useWorkout } from './WorkoutContext';
+import { useWorkoutHistory } from './WorkoutHistoryContext';
 
 type Exercise = {
   name: string
@@ -63,16 +64,18 @@ const workoutProgram: Record<string, Workout> = {
 export default function WorkoutTracker() {
   const { 
     startWorkout: contextStartWorkout, 
-    endWorkout: contextEndWorkout, 
-    incrementWorkoutCount,
-    workoutCount 
+    endWorkout: contextEndWorkout
   } = useWorkout();
+  const { addWorkout, workoutHistory } = useWorkoutHistory();
   const [selectedWorkout, setSelectedWorkout] = useState<string | null>(null)
   const [currentExercise, setCurrentExercise] = useState(0)
   const [currentSet, setCurrentSet] = useState(0)
   const [timer, setTimer] = useState(0)
   const [isResting, setIsResting] = useState(false)
   const { toast } = useToast()
+  const [workoutStartTime, setWorkoutStartTime] = useState<Date | null>(null);
+
+  const workoutCount = workoutHistory.length;
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null
@@ -98,7 +101,7 @@ export default function WorkoutTracker() {
 
   const startWorkout = (workoutName: string) => {
     contextStartWorkout();
-    incrementWorkoutCount();
+    setWorkoutStartTime(new Date());
     setSelectedWorkout(workoutName);
     setCurrentExercise(0);
     setCurrentSet(0);
@@ -149,6 +152,20 @@ export default function WorkoutTracker() {
 
   const finishWorkout = () => {
     contextEndWorkout();
+    const endTime = new Date();
+    const duration = workoutStartTime ? Math.round((endTime.getTime() - workoutStartTime.getTime()) / 60000) : 0;
+
+    addWorkout({
+      name: selectedWorkout!,
+      date: workoutStartTime!,
+      duration: duration,
+      exercises: workoutProgram[selectedWorkout!].exercises.map(exercise => ({
+        name: exercise.name,
+        sets: exercise.sets,
+        reps: exercise.reps,
+      })),
+    });
+
     toast({
       title: "Workout Complete!",
       description: `You've completed the ${selectedWorkout} workout. Great job!`,
